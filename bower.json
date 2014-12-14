@@ -1,0 +1,26 @@
+{
+  "name": "sandboxjs",
+  "version": "0.0.1",
+  "authors": [
+    "Dave Johnson <snoopdave@gmail.com>"
+  ],
+  "description": "Snoopdave Sandbox JS",
+  "main": "index.html",
+  "keywords": [
+    "example"
+  ],
+  "license": "ASL",
+  "homepage": "None",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ember": "~1.8.1",
+    "ember-data": "~1.0.0-beta.12"
+  }
+}

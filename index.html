@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<!--
+ * Licensed under  the  Apache  License, Version 2.0 (the "License") you may not 
+ * use this file except in compliance with the License. You may obtain a copy of 
+ * the License at:
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless  required  by  applicable  law  or  agreed  to  in  writing,  software 
+ * distributed  under  the  License  is distributed on an "AS IS" BASIS, WITHOUT 
+ * WARRANTIES OR CONDITIONS OF ANY  KIND,  either  express  or implied.  See the 
+ * License for the specific language governing permissions and limitations under 
+ * the License.
+-->
+
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Ember Checkin</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+
+  <script type="text/x-handlebars">
+    <h2>Ember Checkin</h2>
+    {{outlet}}
+  </script>
+
+
+  <script type="text/x-handlebars" id="index">
+    <ul>
+      {{#each item in model}}
+      <li>{{item.content}} | {{item.location}}</li>
+      {{/each}}
+    </ul>
+    <p>{{#link-to 'add-checkin'}}Add Checkin{{/link-to}}</p>
+    <p><a href="#" {{action 'logout'}}>Logout</a></p>
+  </script>
+
+
+  <script type="text/x-handlebars" id="login">
+    <h2>Login</h2>
+    <form>
+      {{input type="text" valueBinding="username" placeholder="Username"}}
+      {{input type="password" valueBinding="password" placeholder="Password"}}
+      <button {{action "login"}}>Login</button>
+    </form>
+  </script>
+
+  
+  <script type="text/x-handlebars" id="add-checkin">
+    <h2>What up?</h2>
+    <form>
+      {{input type="text" valueBinding="content" placeholder="What is going on?"}}
+      {{input type="text" valueBinding="location" placeholder="Where you at?"}}
+      <button {{action "checkin"}}>Checkin</button>
+    </form>
+  </script>
+
+
+  <script src="build/all-deps.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- to activate the test runner, add the "?test" query string parameter -->
+  <script src="tests/runner.js"></script>
+
+</body>
+</html>
