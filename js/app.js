@@ -12,7 +12,7 @@
  * the License.
  */
 
-// Example illustrutes Usergrid login via Ember and w/o Usergrid JavaScript SDK 
+// Example illustrates Usergrid login via Ember and w/o Usergrid JavaScript SDK
 
 
 App = Ember.Application.create();
@@ -93,6 +93,7 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
 });
 
 App.NewActivity = DS.Model.extend({
+  content: DS.attr('string'),
   location: DS.attr('string'),
   actor: DS.attr('string'),
   verb: DS.attr('string')
@@ -240,6 +241,7 @@ App.AddCheckinController = Ember.Controller.extend({
 
       var content = this.get("content");
       var location = this.get("location");
+      var target = this.get("target");
 
       var activity = this.store.createRecord( "NewActivity", {
         content: content,
@@ -253,7 +255,7 @@ App.AddCheckinController = Ember.Controller.extend({
       activity.save().then(
         function( success ) { 
           //alert("Saved"); 
-          this.get("target").send("onCheckinDone"); // call route to handle transition
+          target.send("onCheckinDone"); // call route to handle transition
         },
         function( error ) { 
           alert("Error " + error.responseJSON.error_description); 
