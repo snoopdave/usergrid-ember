@@ -16,49 +16,141 @@
 
 <html>
 <head>
-  <meta charset="utf-8">
   <title>Ember Checkin</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="build/all-deps.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 
   <script type="text/x-handlebars">
-    <h2>Ember Checkin</h2>
-    {{outlet}}
+
+    <div class="container" type="text/x-handlebars">
+      {{outlet}}
+      {{outlet modal }}
+    </div>
+
+  </script>
+
+  <!-- ******************************************************************************* -->
+  <!-- index - the main page of the app -->
+
+  <script type="text/x-handlebars" data-template-name="index">
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Checkin</a>
+        </div>
+
+        <button class="btn btn-default navbar-btn" {{action 'showModal' 'add-checkin-modal' model }}>
+          Add Checkin
+        </button>
+
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="#" {{action 'logout'}}>Logout</a> </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="row">
+      <div class="col-md-12">
+        <ul class="list-group">
+          {{#each item in model}}
+            <li class="list-group-item">{{item.content}} | {{item.location}}</li>
+          {{/each}}
+        </ul>
+      </div>
+    </div>
+
   </script>
 
 
-  <script type="text/x-handlebars" id="index">
-    <ul>
-      {{#each item in model}}
-      <li>{{item.content}} | {{item.location}}</li>
-      {{/each}}
-    </ul>
-    <p>{{#link-to 'add-checkin'}}Add Checkin{{/link-to}}</p>
-    <p><a href="#" {{action 'logout'}}>Logout</a></p>
+  <!-- ******************************************************************************* -->
+  <!-- add-checkin-modal - popup for adding a checkin -->
+
+  <script type="text/x-handlebars" data-template-name="add-checkin-modal">
+
+  {{#modal-dialog title="Add Checkin" ok="save" close="removeModal"}}
+    <h3>{{input type="text" name="content" placeholder="What is going on?"}}</h3>
+    <p>{{input type="text" name="location" placeholder="Where you at?"}}</p>
+  {{/modal-dialog}}
+
   </script>
 
 
-  <script type="text/x-handlebars" id="login">
-    <h2>Login</h2>
-    <form>
-      {{input type="text" valueBinding="username" placeholder="Username"}}
-      {{input type="password" valueBinding="password" placeholder="Password"}}
-      <button {{action "login"}}>Login</button>
-    </form>
+  <!-- ******************************************************************************* -->
+  <!-- modal-dialog - component for showing a modal dialog -->
+
+  <!-- Found this article very useful: http://ember.guru/2014/master-your-modals-in-ember-js -->
+
+  <script type="text/x-handlebars" id="components/modal-dialog">
+
+    <div class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+
+            <h4 class="modal-title">{{title}}</h4>
+
+          </div>
+          <div class="modal-body">
+
+            {{yield}}
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" {{action 'ok'}}>OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </script>
 
-  
-  <script type="text/x-handlebars" id="add-checkin">
-    <h2>What up?</h2>
-    <form>
-      {{input type="text" valueBinding="content" placeholder="What is going on?"}}
-      {{input type="text" valueBinding="location" placeholder="Where you at?"}}
-      <button {{action "checkin"}}>Checkin</button>
-    </form>
-  </script>
 
+  <script type="text/x-handlebars" data-template-name="login">
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Checkin</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="row">
+      <div class="col-md-12">
+
+        <form class="form-signin">
+          <h2 class="form-signin-heading">Please Login</h2>
+
+          <label for="username" class="sr-only">Email address</label>
+          {{input class="form-control" type="text" valueBinding="username" placeholder="Username"}}
+
+          <label for="password" class="sr-only">Password</label>
+          {{input class="form-control" type="password" valueBinding="password" placeholder="Password"}}
+            
+          <!-- <div class="checkbox">
+          <label>
+              <input type="checkbox" value="remember-me"> Remember me
+          </label>
+          </div> -->
+          <button class="btn btn-lg btn-primary btn-block" {{action "login"}}>Login</button>
+        </form>
+
+      </div>
+
+    </div>
+
+  </script>
 
   <script src="build/all-deps.js"></script>
   <script src="js/app.js"></script>

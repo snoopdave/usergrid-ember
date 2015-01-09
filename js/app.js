@@ -114,6 +114,31 @@ App.Activity = DS.Model.extend({
 
 
 //------------------------------------------------------------------------------
+// Application route for handling modals
+
+App.ApplicationRoute = Ember.Route.extend({
+
+  actions: {
+    showModal: function(name, model) {
+      this.render(name, {
+        into: 'application',
+        outlet: 'modal',
+        model: model
+      });
+    },
+
+    removeModal: function() {
+      this.disconnectOutlet({
+        outlet: 'modal',
+        parentView: 'application'
+      });
+    }
+  }
+
+});
+
+
+//------------------------------------------------------------------------------
 // Index page with logout link
 
 App.IndexRoute = Ember.Route.extend({
@@ -166,10 +191,6 @@ App.IndexRoute = Ember.Route.extend({
 
 App.IndexController = Ember.Controller.extend({
   actions: {
-
-    addCheckin: function() {
-      this.transitionTo("add-checkin"); 
-    },
 
     logout: function() {
       Usergrid.user = null;
@@ -233,14 +254,14 @@ App.LoginRoute = Ember.Route.extend({
 //------------------------------------------------------------------------------
 // Add Checnkin
 
-App.AddCheckinController = Ember.Controller.extend({
+App.AddCheckinModalController = Ember.ObjectController.extend({
 
   actions: {
 
-    checkin: function() {
+    save: function( inputs ) {
 
-      var content = this.get("content");
-      var location = this.get("location");
+      var content = inputs.content;
+      var location = inputs.location;
       var target = this.get("target");
 
       var activity = this.store.createRecord( "NewActivity", {
@@ -254,24 +275,34 @@ App.AddCheckinController = Ember.Controller.extend({
 
       activity.save().then(
         function( success ) { 
-          //alert("Saved"); 
-          target.send("onCheckinDone"); // call route to handle transition
+          alert("Saved"); 
         },
         function( error ) { 
           alert("Error " + error.responseJSON.error_description); 
         }
       ); 
 
-    }
+    } 
   }
-
 });
 
 
-App.AddCheckinRoute = Ember.Route.extend({
+App.ModalDialogComponent = Ember.Component.extend({
+
   actions: {
-    onCheckinDone: function() {
-      this.transitionTo("/");
+    ok: function() {
+      this.$('.modal').modal('hide');
+      var inputs = {};
+      this.$('input').each( function( idx, elem ) {
+          inputs[elem.name] = elem.value;
+      } );
+      this.sendAction('ok', inputs);
     }
-  }
+  },
+  show: function() {
+    this.$('.modal').modal().on('hidden.bs.modal', function() {
+      this.sendAction('close');
+    }.bind(this));
+  }.on('didInsertElement')
+
 });
