@@ -128,18 +128,22 @@
 
           <!-- TODO enforce validation rules for user name -->
           <label for="name" class="sr-only">Username</label>
-          {{input class="form-control" type="text" required="true" valueBinding="username" placeholder="Username"}}
+          {{input class="form-control" type="text" required="true" 
+                  valueBinding="username" placeholder="Username"}}
 
           <!-- TODO enforce validation rules for email address -->
           <label for="email" class="sr-only">Email address</label>
-          {{input class="form-control" type="email" valueBinding="email" placeholder="Email"}}
+          {{input class="form-control" type="email" 
+                  valueBinding="email" placeholder="Email"}}
 
           <!-- TODO enforce validation rules for password -->
           <label for="password" class="sr-only">Password</label>
-          {{input class="form-control" type="password" valueBinding="password" placeholder="Password"}}
+          {{input class="form-control" type="password" 
+                  valueBinding="password" placeholder="Password"}}
 
           <label for="password_confirm" class="sr-only">Password</label>
-          {{input class="form-control" type="password" valueBinding="password_confirm" placeholder="Password confirm"}}
+          {{input class="form-control" type="password" 
+                  valueBinding="password_confirm" placeholder="Password confirm"}}
             
           <button class="btn btn-lg btn-primary btn-block" {{action "register"}}>Register</button>
         </form>

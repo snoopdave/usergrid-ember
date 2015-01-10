@@ -33,8 +33,6 @@ Usergrid = {
   }
 };
 
-Ember.ObjectController.extend(Ember.Validations.Mixin, {});
-
 
 //------------------------------------------------------------------------------
 // Setup Ember-Data 
@@ -282,7 +280,7 @@ App.LoginController = Ember.Controller.extend({
 App.LoginRoute = Ember.Route.extend({
   actions: {
     onLogin : function() {
-      this.transitionToRoute("/");
+      this.transitionTo("/");
     }
   }
 });
