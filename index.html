@@ -72,6 +72,86 @@
 
 
   <!-- ******************************************************************************* -->
+  <!-- login -->
+
+  <script type="text/x-handlebars" data-template-name="login">
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Checkin</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="row">
+      <div class="col-md-12">
+
+        <form class="form-signin">
+          <h2 class="form-signin-heading">Please Login</h2>
+
+          <label for="username" class="sr-only">Email address</label>
+          {{input class="form-control" type="text" valueBinding="username" placeholder="Username"}}
+
+          <label for="password" class="sr-only">Password</label>
+          {{input class="form-control" type="password" valueBinding="password" placeholder="Password"}}
+            
+          <button class="btn btn-lg btn-primary btn-block" {{action "login"}}>Login</button>
+          Or <a href="#" {{action 'register'}}>Register</a> as a new user.
+        </form>
+
+      </div>
+
+    </div>
+
+  </script>
+
+
+  <!-- ******************************************************************************* -->
+  <!-- register -->
+
+  <script type="text/x-handlebars" data-template-name="register">
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Checkin</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="row">
+      <div class="col-md-12">
+
+        <form class="form-signin">
+          <h2 class="form-signin-heading">User Registration </h2>
+
+          <!-- TODO enforce validation rules for user name -->
+          <label for="name" class="sr-only">Username</label>
+          {{input class="form-control" type="text" required="true" valueBinding="username" placeholder="Username"}}
+
+          <!-- TODO enforce validation rules for email address -->
+          <label for="email" class="sr-only">Email address</label>
+          {{input class="form-control" type="email" valueBinding="email" placeholder="Email"}}
+
+          <!-- TODO enforce validation rules for password -->
+          <label for="password" class="sr-only">Password</label>
+          {{input class="form-control" type="password" valueBinding="password" placeholder="Password"}}
+
+          <label for="password_confirm" class="sr-only">Password</label>
+          {{input class="form-control" type="password" valueBinding="password_confirm" placeholder="Password confirm"}}
+            
+          <button class="btn btn-lg btn-primary btn-block" {{action "register"}}>Register</button>
+        </form>
+
+      </div>
+
+    </div>
+
+  </script>
+
+
+  <!-- ******************************************************************************* -->
   <!-- add-checkin-modal - popup for adding a checkin -->
 
   <script type="text/x-handlebars" data-template-name="add-checkin-modal">
@@ -115,42 +195,6 @@
 
   </script>
 
-
-  <script type="text/x-handlebars" data-template-name="login">
-
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="#">Checkin</a>
-        </div>
-      </div>
-    </nav>
-
-    <div class="row">
-      <div class="col-md-12">
-
-        <form class="form-signin">
-          <h2 class="form-signin-heading">Please Login</h2>
-
-          <label for="username" class="sr-only">Email address</label>
-          {{input class="form-control" type="text" valueBinding="username" placeholder="Username"}}
-
-          <label for="password" class="sr-only">Password</label>
-          {{input class="form-control" type="password" valueBinding="password" placeholder="Password"}}
-            
-          <!-- <div class="checkbox">
-          <label>
-              <input type="checkbox" value="remember-me"> Remember me
-          </label>
-          </div> -->
-          <button class="btn btn-lg btn-primary btn-block" {{action "login"}}>Login</button>
-        </form>
-
-      </div>
-
-    </div>
-
-  </script>
 
   <script src="build/all-deps.js"></script>
   <script src="js/app.js"></script>

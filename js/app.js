@@ -20,6 +20,7 @@ App = Ember.Application.create();
 App.Router.map(function() {
   this.route("login", { path: "/login" });
   this.route("logout", { path: "/logout" });
+  this.route("register", { path: "/register" });
   this.route("add-checkin", { path: "/add-checkin" });
 });
 
@@ -32,6 +33,8 @@ Usergrid = {
   }
 };
 
+Ember.ObjectController.extend(Ember.Validations.Mixin, {});
+
 
 //------------------------------------------------------------------------------
 // Setup Ember-Data 
@@ -41,13 +44,20 @@ App.ApplicationAdapter = DS.RESTAdapter.extend({
   host: Usergrid.getAppUrl(),
 
   headers: function() { 
-    return { "Authorization": "Bearer " + localStorage.getItem("access_token") }; 
+    if ( localStorage.getItem("access_token") ) {
+      return { "Authorization": "Bearer " + localStorage.getItem("access_token") }; 
+    } 
+    return {};
   }.property().volatile(), // ensure value not cached
 
   pathForType: function(type) {
     var ret = Ember.String.camelize(type);
     ret = Ember.String.pluralize(ret);
+
     if ( ret == "newActivities" ) {
+      // Must have a special logic here for new activity because new Activities 
+      // must be posted to the path /{org}/{app}/users/activities, instead of the
+      // path /{org}/{app}/activities as Ember-Data expects.
       ret = "/users/" + Usergrid.user.username + "/activities";
     }
     return ret;
@@ -61,29 +71,40 @@ App.ApplicationStore = DS.Store.extend({
 
 App.store = App.ApplicationStore.create();
 
-// extend serializer to handle Usergrid JSON formal
+
+// Must extend REST serializer to handle Usergrid JSON format, which is 
+// different from what Ember-Data expects.
 App.ApplicationSerializer = DS.RESTSerializer.extend({
 
-  // extract array from Usergrid response
+  // Extract Ember-Data array from Usergrid response
   extractArray: function(store, type, payload) {
 
-    // Usergrid returns array of objects in field named 'entities'
-    var arrayName = payload.path.substring(1);
-    payload[ arrayName ] = payload.entities;
+    // Difference: Usergrid does not return wrapper object with type-key
+    // 
+    // Ember-Data expects a JSON wrapper object around the results with a single
+    // field that is also the type of the data being returned. Usergrid returns 
+    // a JSON objects with lots of fields, with an array field named 'entities' 
+    // that contains the Usergrid Entities returned.
+    //
+    // So here we grab the Usergrid Entities and stick them under a type-key
+    var typeKey = payload.path.substring(1);
+    payload[ typeKey ] = payload.entities;
 
-    // Usergrid returns id in field named 'uuid'
+    // Difference: Usergrid returns ID in 'uuid' field, Ember-Data expects 'id'
+    // So here we add an 'id' field for each Entity, with its 'uuid' value.
     for ( var i in payload.entities ) {
       if ( payload.entities[i] && payload.entities[i].uuid ) {
         payload.entities[i].id = payload.entities[i].uuid;
       }
     }
+
     return this._super(store, type, payload);
   },
 
-  // serialize JSON object that will be sent to Usergrid
+  // Serialize Ember-Data object to Usergrid compatible JSON format
   serializeIntoHash: function( hash, type, record, options ) {
 
-    // Usergrid does not expect a type key
+    // Usergrid does not expect a type-key
     record.eachAttribute(function( name, meta ) {
       hash[name] = record.get(name);
     });
@@ -92,12 +113,7 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
   },
 });
 
-App.NewActivity = DS.Model.extend({
-  content: DS.attr('string'),
-  location: DS.attr('string'),
-  actor: DS.attr('string'),
-  verb: DS.attr('string')
-});
+// Define models for each Usergrid Entity type needed for this app
 
 App.Activity = DS.Model.extend({
   uuid: DS.attr('string'),
@@ -110,6 +126,23 @@ App.Activity = DS.Model.extend({
   verb: DS.attr('string'),
   published: DS.attr('date'),
   metadata: DS.attr('string')
+});
+
+// Must have a special model for new activity because new Activities must 
+// be posted to the path /{org}/{app}/users/activities, instead of the
+// path /{org}/{app}/activities as Ember-Data expects.
+App.NewActivity = DS.Model.extend({
+  content: DS.attr('string'),
+  location: DS.attr('string'),
+  actor: DS.attr('string'),
+  verb: DS.attr('string')
+});
+
+App.User = DS.Model.extend({
+  name: DS.attr('string'),
+  username: DS.attr('string'),
+  email: DS.attr('string'),
+  password: DS.attr('string')
 });
 
 
@@ -203,7 +236,7 @@ App.IndexController = Ember.Controller.extend({
 
 
 //------------------------------------------------------------------------------
-// Login 
+// Login  page
 
 App.LoginController = Ember.Controller.extend({
   actions: {
@@ -236,6 +269,10 @@ App.LoginController = Ember.Controller.extend({
           this.get("target").send("onLogin"); // call route to handle transition
         }
       });
+    },
+
+    register: function() {
+      this.transitionToRoute("register");
     }
 
   }
@@ -245,7 +282,55 @@ App.LoginController = Ember.Controller.extend({
 App.LoginRoute = Ember.Route.extend({
   actions: {
     onLogin : function() {
-      this.transitionTo("/");
+      this.transitionToRoute("/");
+    }
+  }
+});
+
+
+//------------------------------------------------------------------------------
+// Register page
+
+App.RegisterController = Ember.Controller.extend({
+  actions: {
+
+    register: function() { 
+
+      var password = this.get("password");
+      var password_confirm = this.get("password_confirm");
+
+      if (password === password_confirm) {
+
+        var user = this.store.createRecord( "User", {
+            name: this.get("username"), 
+            email: this.get("email"), 
+            password: this.get("password")
+        });
+
+        var route = this; // TODO: is this necessary?
+
+        user.save().then(
+          function( success ) { 
+              alert("Welcome! Please login to your new account."); 
+              route.transitionToRoute("/login")
+            },
+          function( error ) { 
+              alert("Error " + error.responseJSON.error_description); 
+          }
+        ); 
+
+      } else {
+          alert("Password confirm does not match password");
+      }
+    }
+  }
+});
+
+
+App.RegisterRoute = Ember.Route.extend({
+  actions: {
+    onRegister : function() {
+      this.transitionToRoute("/");
     }
   }
 });
