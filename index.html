@@ -17,22 +17,25 @@
 <html>
 <head>
   <title>Ember Checkin</title>
-
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Use CDN version of Bootstrap to work around Bower or Uglify problem with Glyphicons -->
+  <link  rel="stylesheet" type="text/css" 
+    href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" />
 
+  <!-- Use build-generated minified version of CSS from dependencies -->
   <link rel="stylesheet" href="build/all-deps.css">
   <link rel="stylesheet" href="css/style.css">
+
 </head>
 <body>
-
 
   <script type="text/x-handlebars">
 
     <div class="container" type="text/x-handlebars">
       {{outlet}}
-      {{outlet modal }}
+      {{outlet "modal" }}
     </div>
 
   </script>
@@ -85,10 +88,12 @@
     </nav>
 
     <div class="row">
-      <div class="col-md-12">
+      <div class="col-md-3"></div>
+      <div class="col-md-6">
 
-        <form class="form-signin">
-          <h2 class="form-signin-heading">Please Login</h2>
+        <form class="form-login">
+
+          <h2 class="form-login-heading">Please Login</h2>
 
           <label for="username" class="sr-only">Email address</label>
           {{input class="form-control" type="text" valueBinding="username" placeholder="Username"}}
@@ -101,7 +106,7 @@
         </form>
 
       </div>
-
+      <div class="col-md-3"></div>
     </div>
 
   </script>
@@ -121,34 +126,52 @@
     </nav>
 
     <div class="row">
-      <div class="col-md-12">
+      <div class="col-md-3"></div>
+      <div class="col-md-6">
 
-        <form class="form-signin">
-          <h2 class="form-signin-heading">User Registration </h2>
+        <form class="form-register">
 
-          <!-- TODO enforce validation rules for user name -->
-          <label for="name" class="sr-only">Username</label>
-          {{input class="form-control" type="text" required="true" 
-                  valueBinding="username" placeholder="Username"}}
+          <h2>User Registration</h2>
 
-          <!-- TODO enforce validation rules for email address -->
-          <label for="email" class="sr-only">Email address</label>
-          {{input class="form-control" type="email" 
-                  valueBinding="email" placeholder="Email"}}
+          <div class="form-control-div">
+            {{input class="form-control" type="text" required="true" valueBinding="username" 
+                placeholder="Username" key-up="updateUsername" focus-out="updateUsername" }}
+          </div>
+          {{#if usernameValid }} 
+            <div class="field-indicator"><span class="glyphicon glyphicon-ok" ></span></div>
+          {{/if}}
 
-          <!-- TODO enforce validation rules for password -->
-          <label for="password" class="sr-only">Password</label>
-          {{input class="form-control" type="password" 
-                  valueBinding="password" placeholder="Password"}}
+          <div class="form-control-div">
+            {{input class="form-control" type="email" valueBinding="email" 
+              placeholder="Email" key-up="updateEmail" focus-out="updateEmail" }}
+          </div>
+          {{#if emailValid }} 
+            <div class="field-indicator"><span class="glyphicon glyphicon-ok" ></span></div>
+          {{/if}}
 
-          <label for="password_confirm" class="sr-only">Password</label>
-          {{input class="form-control" type="password" 
-                  valueBinding="password_confirm" placeholder="Password confirm"}}
-            
-          <button class="btn btn-lg btn-primary btn-block" {{action "register"}}>Register</button>
+          <div class="form-control-div">
+            {{input class="form-control" type="password" valueBinding="password" 
+              placeholder="Password" key-up="updatePassword" focus-out="updatePassword" }}
+          </div>
+          {{#if passwordValid }} 
+            <div class="field-indicator"><span class="glyphicon glyphicon-ok" ></span></div>
+          {{/if}}
+
+          <div class="form-control-div">
+            {{input class="form-control" type="password" valueBinding="password_confirm" 
+              placeholder="Password confirm" key-up="updatePassword" focus-out="updatePassword" }}
+          </div>
+          {{#if passwordValid }} 
+            <div class="field-indicator"><span class="glyphicon glyphicon-ok" ></span></div>
+          {{/if}}
+
+          <button class="btn btn-lg btn-primary btn-block" {{action "register"}}
+            disabled="true" {{bind-attr disabled="formInvalid"}}>Register</button>
+
         </form>
 
       </div>
+      <div class="col-md-3"></div>
 
     </div>
 
@@ -199,12 +222,17 @@
 
   </script>
 
-
+  
+  <!-- Use build-generated minified version of Ember and other dependencies -->
   <script src="build/all-deps.js"></script>
+
   <script src="js/app.js"></script>
 
   <!-- to activate the test runner, add the "?test" query string parameter -->
   <script src="tests/runner.js"></script>
+
+  <!-- Use CDN version of Bootstrap to work around Bower or Uglify problem with Glyphicons -->
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 
 </body>
 </html>

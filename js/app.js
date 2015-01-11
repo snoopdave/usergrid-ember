@@ -221,8 +221,8 @@ App.IndexRoute = Ember.Route.extend({
 
 
 App.IndexController = Ember.Controller.extend({
-  actions: {
 
+  actions: {
     logout: function() {
       Usergrid.user = null;
       localStorage.removeItem("username");
@@ -237,6 +237,7 @@ App.IndexController = Ember.Controller.extend({
 // Login  page
 
 App.LoginController = Ember.Controller.extend({
+
   actions: {
 
     login: function() { // login by POST to /token end-point
@@ -290,6 +291,7 @@ App.LoginRoute = Ember.Route.extend({
 // Register page
 
 App.RegisterController = Ember.Controller.extend({
+
   actions: {
 
     register: function() { 
@@ -300,15 +302,21 @@ App.RegisterController = Ember.Controller.extend({
       if (password === password_confirm) {
 
         var user = this.store.createRecord( "User", {
-            name: this.get("username"), 
+            username: this.get("username"), 
             email: this.get("email"), 
             password: this.get("password")
         });
 
-        var route = this; // TODO: is this necessary?
+        // TODO: is this necessary?
+        var route = this; 
+        var model = this; 
 
         user.save().then(
           function( success ) { 
+              model.set("username", "");
+              model.set("email", "");
+              model.set("password", "");
+              model.set("password_confirm", "");
               alert("Welcome! Please login to your new account."); 
               route.transitionToRoute("/login")
             },
@@ -320,15 +328,46 @@ App.RegisterController = Ember.Controller.extend({
       } else {
           alert("Password confirm does not match password");
       }
-    }
-  }
-});
+    },
 
+    updateUsername: function() {
+      var username = this.get("username");
+      if ( username && username.length > 3 ) {
+        this.set("usernameValid", true);
+      } else {
+        this.set("usernameValid", false);
+      }
+      this.set("formInvalid", 
+        !(this.get("usernameValid") && this.get("emailValid") && this.get("passwordValid")));
+    },
 
-App.RegisterRoute = Ember.Route.extend({
-  actions: {
-    onRegister : function() {
-      this.transitionToRoute("/");
+    updateEmail: function() {
+      var email = this.get("email");
+
+      // Email validation Stack Overflow style
+      // http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
+      var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+      if ( email && email.length > 3 && re.test(email) ) {
+        this.set("emailValid", true);
+      } else {
+        this.set("emailValid", false);
+      }
+
+      this.set("formInvalid", 
+        !(this.get("usernameValid") && this.get("emailValid") && this.get("passwordValid")));
+    },
+
+    updatePassword: function() {
+      var password = this.get("password");
+      var password_confirm = this.get("password_confirm");
+      if ( password && password.length > 3 && password_confirm == password ) {
+        this.set("passwordValid", true);
+      } else {
+        this.set("passwordValid", false);
+      }
+      this.set("formInvalid", 
+        !(this.get("usernameValid") && this.get("emailValid") && this.get("passwordValid")));
     }
   }
 });
@@ -382,6 +421,7 @@ App.ModalDialogComponent = Ember.Component.extend({
       this.sendAction('ok', inputs);
     }
   },
+
   show: function() {
     this.$('.modal').modal().on('hidden.bs.modal', function() {
       this.sendAction('close');
