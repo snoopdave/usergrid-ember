@@ -1,10 +1,10 @@
 {
-  "name": "sandboxjs",
+  "name": "checkin",
   "version": "0.0.1",
   "authors": [
     "Dave Johnson <snoopdave@gmail.com>"
   ],
-  "description": "Snoopdave Sandbox JS",
+  "description": "Example Usergrid-Ember app",
   "main": "index.html",
   "keywords": [
     "example"

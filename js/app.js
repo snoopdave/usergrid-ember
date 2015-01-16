@@ -108,7 +108,7 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
     });
 
     return hash;
-  },
+  }
 });
 
 // Define models for each Usergrid Entity type needed for this app
@@ -180,25 +180,36 @@ App.IndexRoute = Ember.Route.extend({
 
   beforeModel: function() { // check to see it we are logged in 
 
-    if ( this.loggedIn() ) { 
+    if ( this.loggedIn() ) {
 
-        $.ajax({ 
-            context: this,
-            type: "GET",
-            url: Usergrid.getAppUrl() + "/users/" + localStorage.getItem("username"),
-            headers: { 
-              "Authorization": "Bearer " + localStorage.getItem("access_token") 
-            },
-            error: function( data ) {
-              localStorage.removeItem("username");
-              localStorage.removeItem("access_token"); 
-              this.transitionTo("login"); // hmm, token expired? need to login
-            },
-            success: function( data ) { 
-              Usergrid.user = data.entities[0];
-            }
-        });
-        
+      // TODO figure out if we can use Ember-Data for this instead of $ajax()
+      //var loggedInUser = this.store.find("user", localStorage.getItem("username") );
+      //
+      //if ( loggedInUser ) {
+      //  Usergrid.user = loggedInUser;
+      //} else {
+      //  localStorage.removeItem("username");
+      //  localStorage.removeItem("access_token");
+      //  this.transitionTo("login"); // hmm, token expired? need to login
+      //}
+
+      $.ajax({
+          context: this,
+          type: "GET",
+          url: Usergrid.getAppUrl() + "/users/" + localStorage.getItem("username"),
+          headers: {
+            "Authorization": "Bearer " + localStorage.getItem("access_token")
+          },
+          error: function( data ) {
+            localStorage.removeItem("username");
+            localStorage.removeItem("access_token");
+            this.transitionTo("login"); // hmm, token expired? need to login
+          },
+          success: function( data ) {
+            Usergrid.user = data.entities[0];
+          }
+      });
+      
     } else { // no token, user must login
         this.transitionTo("login"); 
     } 
@@ -248,13 +259,13 @@ App.LoginController = Ember.Controller.extend({
         password: this.get("password")
       };
 
-      $.ajax({ 
+      $.ajax({
         type: "POST",
         url: Usergrid.getAppUrl() + "/token",
         data: loginData,
         context: this,
         error: function( data ) {
-          alert( data.responseJSON.error_description );  
+          alert( data.responseJSON.error_description );
         },
         success: function( data ) { // store access_token in local storage
 
