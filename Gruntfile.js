@@ -35,11 +35,23 @@ module.exports = function(grunt) {
         src: ['build/all-deps.js'],
         dest: 'build/all-deps-min.js'
       }
+    },
+
+    web_server: {
+      options: {
+        cors: true,
+        port: 8080,
+        nevercache: true,
+        logRequests: true
+      },
+      foo: 'bar' // For some reason an extra key with a non-object value is necessary
     }
+
   });
 
   // load each NPM task that we want
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-bower-concat');
+  grunt.loadNpmTasks('grunt-web-server');
 };
 
