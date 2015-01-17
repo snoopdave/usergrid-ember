@@ -15,7 +15,7 @@ How to build Usergrid-Ember
 ---
 1. Run `./build.sh` to download dependencies, uglify and concatenate them into build/all-deps.js and build/all-deps.css.
 2. Run `grunt web-server` to launch in a simple web server, then browse to
-[http://localhost:8080](http://localhost:8080) to see the app in action
+[http://localhost:8080/index.html](http://localhost:8080/index.html) to see the app in action
 
 Other notes
 ---
