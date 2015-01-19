@@ -3,6 +3,8 @@ usergrid-emberjs
 
 This is an Apache Usergrid / Ember.js example.
 It shows how to login via Usergrid and use Ember-Data to create and retrieve Usergrid Activities.
+The example application is called "Checkin" and is based on the same Usergrid app used in my
+[https://github.com/snoopdave/usergrid-mobile](Usergrid-Mobile) example.
 
 Prerequisites
 ---
