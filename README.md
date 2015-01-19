@@ -11,7 +11,7 @@ To build and run Usergrid-Ember you will need NPM, Grunt and Bower installed on 
 * __Grunt__: install this via the NPM tool, for example `npm install -g grunt-cli`
 * __Bower__: install this via the NPM tool, for example `npm install -g bower`
 
-How to build Usergrid-Ember
+How to build and run Usergrid-Ember
 ---
 1. Run `./build.sh` to download dependencies, uglify and concatenate them into build/all-deps.js and build/all-deps.css.
 2. Run `grunt web-server` to launch in a simple web server, then browse to
