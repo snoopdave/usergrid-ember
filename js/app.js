@@ -12,7 +12,7 @@
  * the License.
  */
 
-// Example illustrates Usergrid login via Ember and w/o Usergrid JavaScript SDK
+// Example illustrates Usergrid login via Ember and without Usergrid JavaScript SDK
 
 
 App = Ember.Application.create();
@@ -21,7 +21,6 @@ App.Router.map(function() {
   this.route("login", { path: "/login" });
   this.route("logout", { path: "/logout" });
   this.route("register", { path: "/register" });
-  this.route("add-checkin", { path: "/add-checkin" });
 });
 
 Usergrid = {
@@ -174,6 +173,7 @@ App.MenuItem = DS.Model.extend({
 });
 
 
+
 //------------------------------------------------------------------------------
 // Application route for handling modals
 
@@ -246,6 +246,7 @@ App.IndexRoute = Ember.Route.extend({
   },
 
   model: function() {
+    var ret = [];
     if ( this.loggedIn() ) {
       var foodsite = this.store.find("foodsite");
       if ( foodsite.length > 0 ) {
@@ -275,6 +276,12 @@ App.IndexController = Ember.Controller.extend({
       this.get("target").send("login");
     }
   }
+});
+
+// date formatting using pattern discussed here:
+// http://emberjs.com/guides/cookbook/user_interface_and_interaction/displaying_formatted_dates_with_moment_js/
+Ember.Handlebars.registerBoundHelper('formatDate', function(format, date) {
+  return moment(date).format(format);
 });
 
 
@@ -419,7 +426,7 @@ App.RegisterController = Ember.Controller.extend({
 
 
 //------------------------------------------------------------------------------
-// Add Checnkin
+// Add Checkin
 
 App.AddCheckinModalController = Ember.ObjectController.extend({
 

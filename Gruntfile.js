@@ -22,7 +22,7 @@ module.exports = function(grunt) {
       all: {
         dest: 'build/all-deps.js',
         cssDest: 'build/all-deps.css',
-        include: [ "jquery", "handlebars", "ember", "ember-data", "bootstrap"],
+        include: [ "jquery", "handlebars", "ember", "ember-data", "bootstrap", "moment"],
         bowerOptions: { relative: false }
       }
     },
