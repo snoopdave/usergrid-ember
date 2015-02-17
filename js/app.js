@@ -12,7 +12,7 @@
  * the License.
  */
 
-// Example illustrates Usergrid login via Ember and w/o Usergrid JavaScript SDK
+// Example illustrates Usergrid login via Ember and without Usergrid JavaScript SDK
 
 
 App = Ember.Application.create();
@@ -21,7 +21,6 @@ App.Router.map(function() {
   this.route("login", { path: "/login" });
   this.route("logout", { path: "/logout" });
   this.route("register", { path: "/register" });
-  this.route("add-checkin", { path: "/add-checkin" });
 });
 
 Usergrid = {
@@ -114,16 +113,16 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
 // Define models for each Usergrid Entity type needed for this app
 
 App.Activity = DS.Model.extend({
-  uuid: DS.attr('string'),
+  uuid: DS.attr(),
   type: DS.attr('string'),
   content: DS.attr('string'),
-  location: DS.attr('string'),
+  location: DS.attr(),
   created: DS.attr('date'),
   modified: DS.attr('date'),
-  actor: DS.attr('string'),
+  actor: DS.attr(),
   verb: DS.attr('string'),
   published: DS.attr('date'),
-  metadata: DS.attr('string')
+  metadata: DS.attr()
 });
 
 // Must have a special model for new activity because new Activities must 
@@ -142,6 +141,7 @@ App.User = DS.Model.extend({
   email: DS.attr('string'),
   password: DS.attr('string')
 });
+
 
 
 //------------------------------------------------------------------------------
@@ -216,10 +216,11 @@ App.IndexRoute = Ember.Route.extend({
   },
 
   model: function() {
+    var ret = [];
     if ( this.loggedIn() ) {
-      return this.store.find("activity");
+      ret = this.store.find("activity");
     }
-    return [];
+    return ret;
   },
 
   actions: {
@@ -241,6 +242,12 @@ App.IndexController = Ember.Controller.extend({
       this.get("target").send("login");
     }
   }
+});
+
+// date formatting using pattern discussed here:
+// http://emberjs.com/guides/cookbook/user_interface_and_interaction/displaying_formatted_dates_with_moment_js/
+Ember.Handlebars.registerBoundHelper('formatDate', function(format, date) {
+  return moment(date).format(format);
 });
 
 
@@ -385,7 +392,7 @@ App.RegisterController = Ember.Controller.extend({
 
 
 //------------------------------------------------------------------------------
-// Add Checnkin
+// Add Checkin
 
 App.AddCheckinModalController = Ember.ObjectController.extend({
 

@@ -65,7 +65,10 @@
       <div class="col-md-12">
         <ul class="list-group">
           {{#each item in model}}
-            <li class="list-group-item">{{item.content}} | {{item.location}}</li>
+            <li class="list-group-item">
+              <b>@{{item.actor.username}}</b> {{item.content}}<br>
+              <span style="font-size:80%">{{item.location}} | {{formatDate 'LLL' item.published}}</span>
+            </li>
           {{/each}}
         </ul>
       </div>
