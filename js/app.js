@@ -1,12 +1,12 @@
 /*
- * Licensed under  the  Apache  License, Version 2.0 (the "License") you may not 
+ * Licensed under  the  Apache  License, Version 2.0 (the "License") you may not
  * use this file except in compliance with the License. You may obtain a copy of 
  * the License at:
  * 
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless  required  by  applicable  law  or  agreed  to  in  writing,  software 
- * distributed  under  the  License  is distributed on an "AS IS" BASIS, WITHOUT 
+ * distributed  under  the  License  is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY  KIND,  either  express  or implied.  See the 
  * License for the specific language governing permissions and limitations under 
  * the License.
@@ -43,7 +43,7 @@ App.ApplicationAdapter = DS.RESTAdapter.extend({
 
   headers: function() { 
     if ( localStorage.getItem("access_token") ) {
-      return { "Authorization": "Bearer " + localStorage.getItem("access_token") }; 
+      return { "Authorization": "Bearer " + localStorage.getItem("access_token") };
     } 
     return {};
   }.property().volatile(), // ensure value not cached
@@ -81,15 +81,15 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
     // 
     // Ember-Data expects a JSON wrapper object around the results with a single
     // field that is also the type of the data being returned. Usergrid returns 
-    // a JSON objects with lots of fields, with an array field named 'entities' 
+    // a JSON objects with lots of fields, with an array field named "entities"
     // that contains the Usergrid Entities returned.
     //
     // So here we grab the Usergrid Entities and stick them under a type-key
     var typeKey = payload.path.substring(1);
     payload[ typeKey ] = payload.entities;
 
-    // Difference: Usergrid returns ID in 'uuid' field, Ember-Data expects 'id'
-    // So here we add an 'id' field for each Entity, with its 'uuid' value.
+    // Difference: Usergrid returns ID in "uuid" field, Ember-Data expects "id"
+    // So here we add an "id" field for each Entity, with its "uuid" value.
     for ( var i in payload.entities ) {
       if ( payload.entities[i] && payload.entities[i].uuid ) {
         payload.entities[i].id = payload.entities[i].uuid;
@@ -114,33 +114,63 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
 // Define models for each Usergrid Entity type needed for this app
 
 App.Activity = DS.Model.extend({
-  uuid: DS.attr('string'),
-  type: DS.attr('string'),
-  content: DS.attr('string'),
-  location: DS.attr('string'),
-  created: DS.attr('date'),
-  modified: DS.attr('date'),
-  actor: DS.attr('string'),
-  verb: DS.attr('string'),
-  published: DS.attr('date'),
-  metadata: DS.attr('string')
+  uuid: DS.attr("string"),
+  type: DS.attr("string"),
+  content: DS.attr("string"),
+  location: DS.attr("string"),
+  created: DS.attr("date"),
+  modified: DS.attr("date"),
+  actor: DS.attr("string"),
+  verb: DS.attr("string"),
+  published: DS.attr("date"),
+  metadata: DS.attr("string")
 });
 
 // Must have a special model for new activity because new Activities must 
 // be posted to the path /{org}/{app}/users/activities, instead of the
 // path /{org}/{app}/activities as Ember-Data expects.
 App.NewActivity = DS.Model.extend({
-  content: DS.attr('string'),
-  location: DS.attr('string'),
-  actor: DS.attr('string'),
-  verb: DS.attr('string')
+  content: DS.attr("string"),
+  location: DS.attr("string"),
+  actor: DS.attr("string"),
+  verb: DS.attr("string")
 });
 
 App.User = DS.Model.extend({
-  name: DS.attr('string'),
-  username: DS.attr('string'),
-  email: DS.attr('string'),
-  password: DS.attr('string')
+  name: DS.attr("string"),
+  username: DS.attr("string"),
+  email: DS.attr("string"),
+  password: DS.attr("string")
+});
+
+App.Foodsite = DS.Model.extend({
+    uuid: DS.attr("string"),
+    type: DS.attr("string"),
+    display_name: DS.attr("string"),
+    tag_line: DS.attr("string"),
+    about: DS.attr("string"),
+    hours: DS.attr("string"),
+    directions: DS.attr("string"),
+    street_address: DS.attr("string"),
+    city: DS.attr("string"),
+    state: DS.attr("string"),
+    post_code: DS.attr("string"),
+    location: DS.belongsTo("location")
+});
+
+App.Location = DS.Model.extend({
+    latitude: DS.attr("number"),
+    longitude: DS.attr("number")
+});
+
+App.Menu = DS.Model.extend({
+    uuid: DS.attr("string"),
+    type: DS.attr("string")
+});
+
+App.MenuItem = DS.Model.extend({
+    uuid: DS.attr("string"),
+    type: DS.attr("string")
 });
 
 
@@ -152,16 +182,16 @@ App.ApplicationRoute = Ember.Route.extend({
   actions: {
     showModal: function(name, model) {
       this.render(name, {
-        into: 'application',
-        outlet: 'modal',
+        into: "application",
+        outlet: "modal",
         model: model
       });
     },
 
     removeModal: function() {
       this.disconnectOutlet({
-        outlet: 'modal',
-        parentView: 'application'
+        outlet: "modal",
+        parentView: "application"
       });
     }
   }
@@ -175,7 +205,7 @@ App.ApplicationRoute = Ember.Route.extend({
 App.IndexRoute = Ember.Route.extend({
 
   loggedIn: function() {
-    return localStorage.getItem("username") && localStorage.getItem("access_token"); 
+    return localStorage.getItem("username") && localStorage.getItem("access_token");
   },
 
   beforeModel: function() { // check to see it we are logged in 
@@ -211,20 +241,24 @@ App.IndexRoute = Ember.Route.extend({
       });
       
     } else { // no token, user must login
-        this.transitionTo("login"); 
+        this.transitionTo("login");
     } 
   },
 
   model: function() {
     if ( this.loggedIn() ) {
-      return this.store.find("activity");
+      var foodsite = this.store.find("foodsite");
+      if ( foodsite.length > 0 ) {
+          return foodsite[0];
+      }
+      return {};
     }
-    return [];
+    return {};
   },
 
   actions: {
     login: function() {
-      this.transitionTo("login"); 
+      this.transitionTo("login");
     }
   }
 
@@ -237,7 +271,7 @@ App.IndexController = Ember.Controller.extend({
     logout: function() {
       Usergrid.user = null;
       localStorage.removeItem("username");
-      localStorage.removeItem("access_token"); 
+      localStorage.removeItem("access_token");
       this.get("target").send("login");
     }
   }
@@ -254,8 +288,8 @@ App.LoginController = Ember.Controller.extend({
     login: function() { // login by POST to /token end-point
 
       var loginData = {
-        grant_type: "password", 
-        username: this.get("username"), 
+        grant_type: "password",
+        username: this.get("username"),
         password: this.get("password")
       };
 
@@ -313,8 +347,8 @@ App.RegisterController = Ember.Controller.extend({
       if (password === password_confirm) {
 
         var user = this.store.createRecord( "User", {
-            username: this.get("username"), 
-            email: this.get("email"), 
+            username: this.get("username"),
+            email: this.get("email"),
             password: this.get("password")
         });
 
@@ -328,11 +362,11 @@ App.RegisterController = Ember.Controller.extend({
               model.set("email", "");
               model.set("password", "");
               model.set("password_confirm", "");
-              alert("Welcome! Please login to your new account."); 
+              alert("Welcome! Please login to your new account.");
               route.transitionToRoute("/login")
             },
           function( error ) { 
-              alert("Error " + error.responseJSON.error_description); 
+              alert("Error " + error.responseJSON.error_description);
           }
         ); 
 
@@ -348,7 +382,7 @@ App.RegisterController = Ember.Controller.extend({
       } else {
         this.set("usernameValid", false);
       }
-      this.set("formInvalid", 
+      this.set("formInvalid",
         !(this.get("usernameValid") && this.get("emailValid") && this.get("passwordValid")));
     },
 
@@ -365,7 +399,7 @@ App.RegisterController = Ember.Controller.extend({
         this.set("emailValid", false);
       }
 
-      this.set("formInvalid", 
+      this.set("formInvalid",
         !(this.get("usernameValid") && this.get("emailValid") && this.get("passwordValid")));
     },
 
@@ -377,7 +411,7 @@ App.RegisterController = Ember.Controller.extend({
       } else {
         this.set("passwordValid", false);
       }
-      this.set("formInvalid", 
+      this.set("formInvalid",
         !(this.get("usernameValid") && this.get("emailValid") && this.get("passwordValid")));
     }
   }
@@ -408,10 +442,10 @@ App.AddCheckinModalController = Ember.ObjectController.extend({
 
       activity.save().then(
         function( success ) { 
-          alert("Saved"); 
+          alert("Saved");
         },
         function( error ) { 
-          alert("Error " + error.responseJSON.error_description); 
+          alert("Error " + error.responseJSON.error_description);
         }
       ); 
 
@@ -424,19 +458,19 @@ App.ModalDialogComponent = Ember.Component.extend({
 
   actions: {
     ok: function() {
-      this.$('.modal').modal('hide');
+      this.$(".modal").modal("hide");
       var inputs = {};
-      this.$('input').each( function( idx, elem ) {
+      this.$("input").each( function( idx, elem ) {
           inputs[elem.name] = elem.value;
       } );
-      this.sendAction('ok', inputs);
+      this.sendAction("ok", inputs);
     }
   },
 
   show: function() {
-    this.$('.modal').modal().on('hidden.bs.modal', function() {
-      this.sendAction('close');
+    this.$(".modal").modal().on("hidden.bs.modal", function() {
+      this.sendAction("close");
     }.bind(this));
-  }.on('didInsertElement')
+  }.on("didInsertElement")
 
 });

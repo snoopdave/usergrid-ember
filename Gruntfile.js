@@ -37,14 +37,14 @@ module.exports = function(grunt) {
       }
     },
 
-    web_server: {
-      options: {
-        cors: true,
-        port: 8080,
-        nevercache: true,
-        logRequests: true
-      },
-      foo: 'bar' // For some reason an extra key with a non-object value is necessary
+    connect: {
+      server: {
+        options: {
+          base: '.',
+          port: "8080",
+          keepalive: true
+        }
+      }
     }
 
   });
@@ -52,6 +52,6 @@ module.exports = function(grunt) {
   // load each NPM task that we want
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-bower-concat');
-  grunt.loadNpmTasks('grunt-web-server');
+  grunt.loadNpmTasks('grunt-contrib-connect');
 };
 

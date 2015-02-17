@@ -63,11 +63,27 @@
 
     <div class="row">
       <div class="col-md-12">
-        <ul class="list-group">
-          {{#each item in model}}
-            <li class="list-group-item">{{item.content}} | {{item.location}}</li>
-          {{/each}}
-        </ul>
+
+        <form class="form-register">
+
+          <h2>Foodsite: Basic Information</h2>
+
+          <div class="form-control-div">
+            {{input class="form-control" type="text" valueBinding="display_name"  placeholder="Display name" }}
+          </div>
+
+          <div class="form-control-div">
+            {{input class="form-control" type="text" valueBinding="latitude"  placeholder="Latitude" }}
+          </div>
+
+          <div class="form-control-div">
+            {{input class="form-control" type="text" valueBinding="latitude"  placeholder="Latitude" }}
+          </div>
+
+          <button class="btn btn-lg btn-primary btn-block" {{action "save"}}>Save</button>
+
+        </form>
+
       </div>
     </div>
 
@@ -134,34 +150,34 @@
           <h2>User Registration</h2>
 
           <div class="form-control-div">
-            {{input class="form-control" type="text" required="true" valueBinding="username" 
+            {{input class="form-control" type="text" required="true" valueBinding="username"
                 placeholder="Username" key-up="updateUsername" focus-out="updateUsername" }}
           </div>
-          {{#if usernameValid }} 
+          {{#if usernameValid }}
             <div class="field-indicator"><span class="glyphicon glyphicon-ok" ></span></div>
           {{/if}}
 
           <div class="form-control-div">
-            {{input class="form-control" type="email" valueBinding="email" 
+            {{input class="form-control" type="email" valueBinding="email"
               placeholder="Email" key-up="updateEmail" focus-out="updateEmail" }}
           </div>
-          {{#if emailValid }} 
+          {{#if emailValid }}
             <div class="field-indicator"><span class="glyphicon glyphicon-ok" ></span></div>
           {{/if}}
 
           <div class="form-control-div">
-            {{input class="form-control" type="password" valueBinding="password" 
+            {{input class="form-control" type="password" valueBinding="password"
               placeholder="Password" key-up="updatePassword" focus-out="updatePassword" }}
           </div>
-          {{#if passwordValid }} 
+          {{#if passwordValid }}
             <div class="field-indicator"><span class="glyphicon glyphicon-ok" ></span></div>
           {{/if}}
 
           <div class="form-control-div">
-            {{input class="form-control" type="password" valueBinding="password_confirm" 
+            {{input class="form-control" type="password" valueBinding="password_confirm"
               placeholder="Password confirm" key-up="updatePassword" focus-out="updatePassword" }}
           </div>
-          {{#if passwordValid }} 
+          {{#if passwordValid }}
             <div class="field-indicator"><span class="glyphicon glyphicon-ok" ></span></div>
           {{/if}}
 

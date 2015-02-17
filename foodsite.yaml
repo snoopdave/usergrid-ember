@@ -1,0 +1,304 @@
+swagger: '2.0'
+info:
+  title: Checkin API
+  description: Simple Checkin API example
+  version: "1.0.0"
+host: api.usergrid.com
+schemes:
+  - https
+basePath: /snoopdave/checkin1
+produces:
+  - application/jsona
+
+paths:
+
+  /token/:
+    post:
+      summary: Authenticate via username and password
+      description: |
+        Post LoginData to this end-point to authenticate
+      consumes: [application/json]
+      responses:
+        201:
+          description: Login succeeded
+          schema:
+            $ref: '#/definitions/LoginResponse'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+  /restaurants:
+    get:
+      summary: Restaurants
+      description: |
+        Returns collection of Restaurants.
+      parameters:
+        - name: ql
+          type: string
+          in: query
+          description: Optional query specified in Usergrid query syntax.
+          required: false
+      responses:
+        200:
+          description: Successful response.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RestaurantResponse'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /menus/:
+    get:
+      summary: Menus.
+      description: |
+        Returns collection of Menus.
+      parameters:
+        - name: ql
+          type: string
+          in: query
+          description: Optional query specified in Usergrid query syntax.
+          required: false
+      responses:
+        200:
+          description: Successful response.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MenuResponse'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /menus/{menuId}/items/:
+    get:
+      summary: Returns collection of Menu Items that appear on specified Menu.
+      parameters:
+        - name: menuId
+          type: string
+          in: path
+          description: UUID of Menu.
+          required: true
+        - name: ql
+          type: string
+          in: query
+          description: Optional query specified in Usergrid query syntax.
+          required: false
+      responses:
+        200:
+          description: Successful response.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MenuItemResponse'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /menus/{menuId}/items/{itemId}:
+    get:
+      summary: Returns single item from menu.
+      parameters:
+        - name: menuId
+          type: string
+          in: path
+          description: UUID of Menu.
+          required: true
+        - name: itemId
+          type: string
+          in: path
+          description: UUID of Menu Item.
+          required: true
+      responses:
+        200:
+          description: Successful response.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MenuItemResponse'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /menuitems/:
+    get:
+      summary: Returns collection of Menu Items.
+      parameters:
+        - name: ql
+          type: string
+          in: query
+          description: Optional query specified in Usergrid query syntax.
+          required: false
+      responses:
+        200:
+          description: Successful response.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MenuItemResponse'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+            
+definitions:
+
+  LoginInfo:
+    description: Data required to obtain and access_token.
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+      grant_type:
+        type: string
+        
+  LoginResponse:
+    properties:
+      access_token:
+        type: string
+      
+  RestaurantResponse:
+    properties:
+      action:
+        type: string
+        description: HTTP method that was executed    
+      uri:
+        type: string
+        description: URI of this resource.
+      status:
+        type: string
+        description: HTTP status description.
+      count:
+        type: string
+        description: Number of Users returned.
+      entities:
+        type: array
+        items: 
+          $ref: '#/definitions/Restaurant'
+    
+  Restaurant:
+    properties:
+      uuid: 
+        type: string
+        description: Uniquely indentifies the entity.
+      display_name:
+        type: string
+        description: Name of restaurant
+      description:
+        type: string
+        description: Description
+      address_street:
+        type: string
+        description: Street address
+      address_city:
+        type: string
+        description: City
+      address_state:
+        type: string
+        description: State
+      zip:
+        type: string
+        description: ZIP code
+      phone:
+        type: string
+        description: Phone number
+      opening_time:
+        type: string
+        description: Opening time
+      closeing_time:
+        type: string
+        description: Closing time
+
+  MenuResponse:
+    properties:
+      action:
+        type: string
+        description: HTTP method that was executed    
+      uri:
+        type: string
+        description: URI of this resource.
+      status:
+        type: string
+        description: HTTP status description.
+      count:
+        type: string
+        description: Number of Users returned.
+      entities:
+        type: array
+        items: 
+          $ref: '#/definitions/Menu'  
+    
+  Menu:
+    properties:
+      uuid: 
+        type: string
+        description: Uniquely indentifies the entity.
+      name: 
+        type: string
+        description: Name that uniquely identifies menu.
+        
+  MenuItemResponse:
+    properties:
+      action:
+        type: string
+        description: HTTP method that was executed    
+      uri:
+        type: string
+        description: URI of this resource.
+      status:
+        type: string
+        description: HTTP status description.
+      count:
+        type: string
+        description: Number of Users returned.
+      entities:
+        type: array
+        items: 
+          $ref: '#/definitions/MenuItem' 
+    
+  MenuItem:
+    properties:
+      uuid: 
+        type: string
+        description: Uniquely indentifies the entity.
+      name: 
+        type: string
+        description: Name that uniquely identifies menu item.
+      display_name: 
+        type: string
+        description: Name to be displayed in menu
+      description:
+        type: string
+        description: Description of menu item.
+      quantities:
+        type: array
+        items: 
+          $ref: '#/descriptions/Quantity'
+          
+  Quantity:
+    properties:
+      display_name: 
+        type: string
+        description: Name of quantity (e.g. bottle, servving, etc.)
+      price:
+        type: float
+        description: Price of this quantity.
+        
+  Error:
+    properties:
+      error: 
+        type: string
+        description: Short description of error.
+      exception:
+        type: string
+        description: Exception type.
+      error_description:
+        type: string
+        description: Description of error.
