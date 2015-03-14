@@ -21,8 +21,8 @@ module.exports = function(grunt) {
     bower_concat: {
       all: {
         dest: 'build/all-deps.js',
-        cssDest: 'build/all-deps.css',
-        include: [ "jquery", "handlebars", "ember", "ember-data", "bootstrap", "moment"],
+        // cssDest: 'build/all-deps.css', // not needed as bootstrap and CSS comes from a CDN
+        include: [ "jquery", "handlebars", "ember", "ember-data", "moment"],
         bowerOptions: { relative: false }
       }
     },
@@ -42,6 +42,7 @@ module.exports = function(grunt) {
         options: {
           base: '.',
           port: "8080",
+          hostname: "localhost",
           keepalive: true
         }
       }

@@ -15,52 +15,29 @@
 // Example illustrates Usergrid login via Ember and without Usergrid JavaScript SDK
 
 
+UG.Config.setProperties({
+  orgName: "snoopdave",
+  appName: "foodsite",
+  url: "https://api.usergrid.com"
+});
+
+
 App = Ember.Application.create();
 
 App.Router.map(function() {
-  this.route("login", { path: "/login" });
-  this.route("logout", { path: "/logout" });
+  this.route("login",    { path: "/login" });
+  this.route("logout",   { path: "/logout" });
   this.route("register", { path: "/register" });
 });
 
-Usergrid = {
-  orgName: "snoopdave",
-  appName: "checkin1",
-  uri: "https://api.usergrid.com",
-  getAppUrl : function() {
-    return this.uri + "/" + this.orgName + "/" + this.appName;
-  }
-};
-
 
 //------------------------------------------------------------------------------
-// Setup Ember-Data 
+// Setup Ember-Data And Ember-Usergrid
 
-App.ApplicationAdapter = DS.RESTAdapter.extend({
 
-  host: Usergrid.getAppUrl(),
+App.ApplicationAdapter = UG.RESTAdapter.extend();
 
-  headers: function() { 
-    if ( localStorage.getItem("access_token") ) {
-      return { "Authorization": "Bearer " + localStorage.getItem("access_token") };
-    } 
-    return {};
-  }.property().volatile(), // ensure value not cached
-
-  pathForType: function(type) {
-    var ret = Ember.String.camelize(type);
-    ret = Ember.String.pluralize(ret);
-
-    if ( ret == "newActivities" ) {
-      // Must have a special logic here for new activity because new Activities 
-      // must be posted to the path /{org}/{app}/users/activities, instead of the
-      // path /{org}/{app}/activities as Ember-Data expects.
-      ret = "/users/" + Usergrid.user.username + "/activities";
-    }
-    return ret;
-  }
-
-});
+App.ApplicationSerializer = UG.RESTSerializer.extend();
 
 App.ApplicationStore = DS.Store.extend({
   adapter: App.ApplicationAdapter.create() 
@@ -68,139 +45,52 @@ App.ApplicationStore = DS.Store.extend({
 
 App.store = App.ApplicationStore.create();
 
-
-// Must extend REST serializer to handle Usergrid JSON format, which is 
-// different from what Ember-Data expects.
-App.ApplicationSerializer = DS.RESTSerializer.extend({
-
-  // Extract Ember-Data array from Usergrid response
-  extractArray: function(store, type, payload) {
-
-    // Difference: Usergrid does not return wrapper object with type-key
-    // 
-    // Ember-Data expects a JSON wrapper object around the results with a single
-    // field that is also the type of the data being returned. Usergrid returns 
-    // a JSON objects with lots of fields, with an array field named "entities"
-    // that contains the Usergrid Entities returned.
-    //
-    // So here we grab the Usergrid Entities and stick them under a type-key
-    var typeKey = payload.path.substring(1);
-    payload[ typeKey ] = payload.entities;
-
-    // Difference: Usergrid returns ID in "uuid" field, Ember-Data expects "id"
-    // So here we add an "id" field for each Entity, with its "uuid" value.
-    for ( var i in payload.entities ) {
-      if ( payload.entities[i] && payload.entities[i].uuid ) {
-        payload.entities[i].id = payload.entities[i].uuid;
-      }
-    }
-
-    return this._super(store, type, payload);
-  },
-
-  // Serialize Ember-Data object to Usergrid compatible JSON format
-  serializeIntoHash: function( hash, type, record, options ) {
-
-    // Usergrid does not expect a type-key
-    record.eachAttribute(function( name, meta ) {
-      hash[name] = record.get(name);
-    });
-
-    return hash;
+App.FoodsiteSerializer = UG.RESTSerializer.extend( DS.EmbeddedRecordsMixin, {
+  attrs: {
+    location: { embedded: 'always' }
   }
 });
 
+
+//------------------------------------------------------------------------------
 // Define models for each Usergrid Entity type needed for this app
 
-App.Activity = DS.Model.extend({
-  uuid: DS.attr("string"),
-  type: DS.attr("string"),
-  content: DS.attr("string"),
-  location: DS.attr("string"),
-  created: DS.attr("date"),
-  modified: DS.attr("date"),
-  actor: DS.attr("string"),
-  verb: DS.attr("string"),
-  published: DS.attr("date"),
-  metadata: DS.attr("string")
-});
+App.User = UG.User.extend();
 
-// Must have a special model for new activity because new Activities must 
-// be posted to the path /{org}/{app}/users/activities, instead of the
-// path /{org}/{app}/activities as Ember-Data expects.
-App.NewActivity = DS.Model.extend({
-  content: DS.attr("string"),
-  location: DS.attr("string"),
-  actor: DS.attr("string"),
-  verb: DS.attr("string")
-});
-
-App.User = DS.Model.extend({
+App.Foodsite = UG.Entity.extend({
   name: DS.attr("string"),
-  username: DS.attr("string"),
-  email: DS.attr("string"),
-  password: DS.attr("string")
-});
-
-App.Foodsite = DS.Model.extend({
-    uuid: DS.attr("string"),
-    type: DS.attr("string"),
-    display_name: DS.attr("string"),
-    tag_line: DS.attr("string"),
-    about: DS.attr("string"),
-    hours: DS.attr("string"),
-    directions: DS.attr("string"),
-    street_address: DS.attr("string"),
-    city: DS.attr("string"),
-    state: DS.attr("string"),
-    post_code: DS.attr("string"),
-    location: DS.belongsTo("location")
+  location: DS.belongsTo("location")
+  //uuid: DS.attr("string"),
+  //type: DS.attr("string"),
+  //tag_line: DS.attr("string"),
+  //about: DS.attr("string"),
+  //hours: DS.attr("string"),
+  //directions: DS.attr("string"),
+  //street_address: DS.attr("string"),
+  //city: DS.attr("string"),
+  //state: DS.attr("string"),
+  //post_code: DS.attr("string")
 });
 
 App.Location = DS.Model.extend({
-    latitude: DS.attr("number"),
-    longitude: DS.attr("number")
+  latitude: DS.attr("number"),
+  longitude: DS.attr("number")
 });
 
 App.Menu = DS.Model.extend({
-    uuid: DS.attr("string"),
-    type: DS.attr("string")
+  uuid: DS.attr("string"),
+  type: DS.attr("string")
 });
 
 App.MenuItem = DS.Model.extend({
-    uuid: DS.attr("string"),
-    type: DS.attr("string")
-});
-
-
-
-//------------------------------------------------------------------------------
-// Application route for handling modals
-
-App.ApplicationRoute = Ember.Route.extend({
-
-  actions: {
-    showModal: function(name, model) {
-      this.render(name, {
-        into: "application",
-        outlet: "modal",
-        model: model
-      });
-    },
-
-    removeModal: function() {
-      this.disconnectOutlet({
-        outlet: "modal",
-        parentView: "application"
-      });
-    }
-  }
-
+  uuid: DS.attr("string"),
+  type: DS.attr("string")
 });
 
 
 //------------------------------------------------------------------------------
-// Index page with logout link
+// Index page route
+
 
 App.IndexRoute = Ember.Route.extend({
 
@@ -208,45 +98,31 @@ App.IndexRoute = Ember.Route.extend({
     return localStorage.getItem("username") && localStorage.getItem("access_token");
   },
 
-  beforeModel: function() { // check to see it we are logged in 
+  beforeModel: function() {
 
+    // check to see it we are logged in
     if ( this.loggedIn() ) {
 
-      // TODO figure out if we can use Ember-Data for this instead of $ajax()
-      //var loggedInUser = this.store.find("user", localStorage.getItem("username") );
-      //
-      //if ( loggedInUser ) {
-      //  Usergrid.user = loggedInUser;
-      //} else {
-      //  localStorage.removeItem("username");
-      //  localStorage.removeItem("access_token");
-      //  this.transitionTo("login"); // hmm, token expired? need to login
-      //}
-
-      $.ajax({
+      var username =localStorage.getItem("username");
+      var accessToken =localStorage.getItem("access_token");
+      UG.Auth.validateToken( accessToken, username, {
           context: this,
-          type: "GET",
-          url: Usergrid.getAppUrl() + "/users/" + localStorage.getItem("username"),
-          headers: {
-            "Authorization": "Bearer " + localStorage.getItem("access_token")
-          },
-          error: function( data ) {
+          error: function() {
+            // hmm, token must have expired, need to login
             localStorage.removeItem("username");
             localStorage.removeItem("access_token");
-            this.transitionTo("login"); // hmm, token expired? need to login
+            this.context.transitionTo("login");
           },
-          success: function( data ) {
-            Usergrid.user = data.entities[0];
-          }
+          success: function( data ) {} // yay!
       });
-      
-    } else { // no token, user must login
-        this.transitionTo("login");
+
+    } else {
+      // no token, user must login
+      this.transitionTo("login");
     } 
   },
 
   model: function() {
-    var ret = [];
     if ( this.loggedIn() ) {
       var foodsite = this.store.find("foodsite");
       if ( foodsite.length > 0 ) {
@@ -260,33 +136,72 @@ App.IndexRoute = Ember.Route.extend({
   actions: {
     login: function() {
       this.transitionTo("login");
+    },
+    logout: function() {
+      alert("Logout");
     }
+
   }
 
 });
+
+
+//------------------------------------------------------------------------------
+// Index page controller
 
 
 App.IndexController = Ember.Controller.extend({
 
   actions: {
-    logout: function() {
-      Usergrid.user = null;
+
+    logout: function () {
+      UG.Auth.logout();
       localStorage.removeItem("username");
       localStorage.removeItem("access_token");
       this.get("target").send("login");
+    },
+
+    save: function () {
+
+      var name = this.get("display_name");
+      var lat = parseInt( this.get("latitude") );
+      var lon = parseInt( this.get("longitude") );
+
+      var location = this.store.push("location", {
+        id: "foo",
+        longitude: lon,
+        latitude: lat
+      });
+
+      var fs = this.store.createRecord("foodsite", {
+        name: name
+      });
+
+      fs.set("location", location);
+
+      fs.save().then(
+          function (success) {
+            alert("Saved");
+          },
+          function (error) {
+            alert("Error " + error);
+          }
+      );
     }
   }
+
 });
 
 // date formatting using pattern discussed here:
 // http://emberjs.com/guides/cookbook/user_interface_and_interaction/displaying_formatted_dates_with_moment_js/
-Ember.Handlebars.registerBoundHelper('formatDate', function(format, date) {
-  return moment(date).format(format);
-});
+//Ember.Handlebars.registerBoundHelper('formatDate', function(format, date) {
+//  return moment(date).format(format);
+//});
 
 
 //------------------------------------------------------------------------------
-// Login  page
+// Login page
+
 
 App.LoginController = Ember.Controller.extend({
 
@@ -294,30 +209,17 @@ App.LoginController = Ember.Controller.extend({
 
     login: function() { // login by POST to /token end-point
 
-      var loginData = {
-        grant_type: "password",
-        username: this.get("username"),
-        password: this.get("password")
-      };
-
-      $.ajax({
-        type: "POST",
-        url: Usergrid.getAppUrl() + "/token",
-        data: loginData,
+      UG.Auth.login( this.get("username"), this.get("password"), {
         context: this,
-        error: function( data ) {
-          alert( data.responseJSON.error_description );
+        error: function( message ) {
+          alert( message );
         },
         success: function( data ) { // store access_token in local storage
-
-          Usergrid.user = data.user;
-          localStorage.setItem("username", loginData.username );
+          localStorage.setItem("username", data.user.username );
           localStorage.setItem("access_token", data.access_token );
-
-          this.set("username", ""); // clear the form
-          this.set("password", "");
-
-          this.get("target").send("onLogin"); // call route to handle transition
+          this.context.set("username", ""); // clear the form
+          this.context.set("password", "");
+          this.context.get("target").send("onLogin"); // call route to handle transition
         }
       });
     },
@@ -346,39 +248,35 @@ App.RegisterController = Ember.Controller.extend({
 
   actions: {
 
-    register: function() { 
+    register: function () {
 
+      var username = this.get("username");
+      var email = this.get("email");
       var password = this.get("password");
       var password_confirm = this.get("password_confirm");
 
       if (password === password_confirm) {
 
-        var user = this.store.createRecord( "User", {
-            username: this.get("username"),
-            email: this.get("email"),
-            password: this.get("password")
+        // TODO: is this necessary?
+        var route = this;
+        var model = this;
+
+        UG.Auth.register( this.store, username, email, password, {
+          success: function (success) {
+            model.set("username", "");
+            model.set("email", "");
+            model.set("password", "");
+            model.set("password_confirm", "");
+            alert("Welcome! Please login to your new account.");
+            route.transitionToRoute("/login")
+          },
+          error: function (error) {
+            alert("Error " + error.responseJSON.error_description);
+          }
         });
 
-        // TODO: is this necessary?
-        var route = this; 
-        var model = this; 
-
-        user.save().then(
-          function( success ) { 
-              model.set("username", "");
-              model.set("email", "");
-              model.set("password", "");
-              model.set("password_confirm", "");
-              alert("Welcome! Please login to your new account.");
-              route.transitionToRoute("/login")
-            },
-          function( error ) { 
-              alert("Error " + error.responseJSON.error_description);
-          }
-        ); 
-
       } else {
-          alert("Password confirm does not match password");
+        alert("Password confirm does not match password");
       }
     },
 
@@ -396,11 +294,7 @@ App.RegisterController = Ember.Controller.extend({
     updateEmail: function() {
       var email = this.get("email");
 
-      // Email validation Stack Overflow style
-      // http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
-      var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
-      if ( email && email.length > 3 && re.test(email) ) {
+      if ( email && email.length > 3 && emailRegex.test(email) ) {
         this.set("emailValid", true);
       } else {
         this.set("emailValid", false);
@@ -426,58 +320,46 @@ App.RegisterController = Ember.Controller.extend({
 
 
 //------------------------------------------------------------------------------
-// Add Checkin
+// Modal dialogs
 
-App.AddCheckinModalController = Ember.ObjectController.extend({
-
-  actions: {
-
-    save: function( inputs ) {
-
-      var content = inputs.content;
-      var location = inputs.location;
-      var target = this.get("target");
-
-      var activity = this.store.createRecord( "NewActivity", {
-        content: content,
-        location: location,
-        verb: "checkin",
-        actor: {
-          username: Usergrid.user.username
-        }
-      });
-
-      activity.save().then(
-        function( success ) { 
-          alert("Saved");
-        },
-        function( error ) { 
-          alert("Error " + error.responseJSON.error_description);
-        }
-      ); 
-
-    } 
-  }
-});
-
-
-App.ModalDialogComponent = Ember.Component.extend({
-
-  actions: {
-    ok: function() {
-      this.$(".modal").modal("hide");
-      var inputs = {};
-      this.$("input").each( function( idx, elem ) {
-          inputs[elem.name] = elem.value;
-      } );
-      this.sendAction("ok", inputs);
-    }
-  },
-
-  show: function() {
-    this.$(".modal").modal().on("hidden.bs.modal", function() {
-      this.sendAction("close");
-    }.bind(this));
-  }.on("didInsertElement")
-
-});
+//App.ApplicationRoute = Ember.Route.extend({
+//
+//  actions: {
+//    showModal: function(name, model) {
+//      this.render(name, {
+//        into: "application",
+//        outlet: "modal",
+//        model: model
+//      });
+//    },
+//
+//    removeModal: function() {
+//      this.disconnectOutlet({
+//        outlet: "modal",
+//        parentView: "application"
+//      });
+//    }
+//  }
+//
+//});
+//
+//App.ModalDialogComponent = Ember.Component.extend({
+//
+//  actions: {
+//    ok: function() {
+//      this.$(".modal").modal("hide");
+//      var inputs = {};
+//      this.$("input").each( function( idx, elem ) {
+//          inputs[elem.name] = elem.value;
+//      } );
+//      this.sendAction("ok", inputs);
+//    }
+//  },
+//
+//  show: function() {
+//    this.$(".modal").modal().on("hidden.bs.modal", function() {
+//      this.sendAction("close");
+//    }.bind(this));
+//  }.on("didInsertElement")
+//
+//});

@@ -1,3 +1,4 @@
+#!/bin/sh
 npm install
 npm install --save
 bower install --save

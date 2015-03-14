@@ -25,7 +25,8 @@
     href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" />
 
   <!-- Use build-generated minified version of CSS from dependencies -->
-  <link rel="stylesheet" href="build/all-deps.css">
+  <!-- link rel="stylesheet" href="build/all-deps.css" -->
+    
   <link rel="stylesheet" href="css/style.css">
 
 </head>
@@ -62,9 +63,10 @@
     </nav>
 
     <div class="row">
-      <div class="col-md-12">
+      <div class="col-md-3"></div>
+      <div class="col-md-6">
 
-        <form class="form-register">
+        <form class="form-foodsite">
 
           <h2>Foodsite: Basic Information</h2>
 
@@ -77,7 +79,7 @@
           </div>
 
           <div class="form-control-div">
-            {{input class="form-control" type="text" valueBinding="latitude"  placeholder="Latitude" }}
+            {{input class="form-control" type="text" valueBinding="longitude"  placeholder="Longitude" }}
           </div>
 
           <button class="btn btn-lg btn-primary btn-block" {{action "save"}}>Save</button>
@@ -85,6 +87,7 @@
         </form>
 
       </div>
+      <div class="col-md-3"></div>
     </div>
 
   </script>
@@ -195,19 +198,6 @@
 
 
   <!-- ******************************************************************************* -->
-  <!-- add-checkin-modal - popup for adding a checkin -->
-
-  <script type="text/x-handlebars" data-template-name="add-checkin-modal">
-
-  {{#modal-dialog title="Add Checkin" ok="save" close="removeModal"}}
-    <h3>{{input type="text" name="content" placeholder="What is going on?"}}</h3>
-    <p>{{input type="text" name="location" placeholder="Where you at?"}}</p>
-  {{/modal-dialog}}
-
-  </script>
-
-
-  <!-- ******************************************************************************* -->
   <!-- modal-dialog - component for showing a modal dialog -->
 
   <!-- Found this article very useful: http://ember.guru/2014/master-your-modals-in-ember-js -->
@@ -242,6 +232,9 @@
   <!-- Use build-generated minified version of Ember and other dependencies -->
   <script src="build/all-deps.js"></script>
 
+  <script src="js/ds-no-key-mixin.js"></script>
+  <script src="js/ember-ug.js"></script>
+  <script src="js/regexes.js"></script>
   <script src="js/app.js"></script>
 
   <!-- to activate the test runner, add the "?test" query string parameter -->
