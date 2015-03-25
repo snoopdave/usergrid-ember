@@ -188,7 +188,7 @@ UG.Auth = Ember.Namespace.create({
 
   logout: function() {
     UG.Auth.user = null;
-    UG.Auth.token = null;
+    UG.Auth.accessToken = null;
   },
 
   register: function ( username, email, password, callback) {
