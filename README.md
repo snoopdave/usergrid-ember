@@ -1,6 +1,8 @@
 usergrid-emberjs
 ===
 
+This work has be superceded by the Usergrid Ember Addon, which you can find here: https://github.com/snoopdave/usergrid-ember-addon
+
 This is an Apache Usergrid / Ember.js example.
 It shows how to login via Usergrid and use Ember-Data to create and retrieve Usergrid Activities.
 The example application is called "Checkin" and is based on the same Usergrid app used in my
